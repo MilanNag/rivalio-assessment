@@ -1,10 +1,10 @@
 # ---------------------------------------------------------------------------
-# Root Dockerfile for single-app deployment (Fly.io).
+# Root Dockerfile for single-app deployment (Render or any Docker host).
 #
 # Builds the Go API and the Next.js frontend into one image. At runtime the
-# Go API listens on 127.0.0.1:8090 and the Next server (port 3000) proxies
-# /api/* and /healthz to it, so the whole app is served from a single origin
-# and no CORS configuration is needed.
+# Go API listens on 127.0.0.1:8090 and the Next server (platform PORT,
+# default 3000) proxies /api/* and /healthz to it, so the whole app is served
+# from a single origin and no CORS configuration is needed.
 #
 # For local development prefer `docker compose up --build`, which runs the
 # services separately.
@@ -37,8 +37,9 @@ RUN npm run build
 # --- Stage 3: runtime ---
 FROM node:22-alpine
 WORKDIR /app
+# PORT is intentionally not set here: the platform (e.g. Render) provides it
+# for the public Next.js server, while start.sh pins the Go API to 8090.
 ENV NODE_ENV=production \
-    PORT=8090 \
     UPLOAD_DIR=/data/uploads \
     HOSTNAME=0.0.0.0
 

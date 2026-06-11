@@ -60,33 +60,24 @@ npm install
 npm run dev          # uses http://localhost:8090 as API by default
 ```
 
-## Deploying to Fly.io
+## Deploying to Render
 
-The root [`Dockerfile`](Dockerfile) builds both services into a single image: the Go API runs on `127.0.0.1:8090` inside the machine and the Next.js server (port 3000) proxies `/api/*` and `/healthz` to it. Everything is served from one origin, so no CORS or `NEXT_PUBLIC_API_URL` configuration is needed.
+The root [`Dockerfile`](Dockerfile) builds both services into a single image: the Go API runs on `127.0.0.1:8090` inside the container and the Next.js server (on Render's `PORT`) proxies `/api/*` and `/healthz` to it. Everything is served from one origin, so no CORS or `NEXT_PUBLIC_API_URL` configuration is needed.
 
-```bash
-# 1. Install flyctl and sign in
-brew install flyctl
-fly auth login
+A [`render.yaml`](render.yaml) Blueprint provisions everything (web service + PostgreSQL):
 
-# 2. Create the app (uses the existing fly.toml; pick a unique app name)
-fly launch --no-deploy
+1. Push the repository to GitHub.
+2. In the [Render dashboard](https://dashboard.render.com), click **New → Blueprint** and select the repo.
+3. Render reads `render.yaml`, creates the `taskflow` web service and the `taskflow-db` PostgreSQL instance, wires `DATABASE_URL`, and generates a random `JWT_SECRET` automatically.
+4. Click **Apply** — the first deploy builds the Docker image and the app goes live at `https://taskflow-<hash>.onrender.com`. Database migrations run automatically when the API boots.
 
-# 3. Provision Postgres and attach it (sets the DATABASE_URL secret)
-fly postgres create --name taskflow-db
-fly postgres attach taskflow-db
+Subsequent pushes to the default branch auto-deploy.
 
-# 4. Set the JWT secret (min 32 chars)
-fly secrets set JWT_SECRET="$(openssl rand -hex 32)"
+Free-tier notes:
 
-# 5. Volume for uploaded attachments
-fly volumes create taskflow_uploads --size 1
-
-# 6. Deploy
-fly deploy
-```
-
-The app will be live at `https://<your-app-name>.fly.dev`. Database migrations run automatically when the API boots.
+- The web service spins down after ~15 minutes of inactivity; the first request afterwards takes ~30–60s (cold start).
+- Free PostgreSQL instances expire after 30 days — upgrade the database plan to keep data long-term.
+- Uploaded attachments live on the container's local disk and are lost on redeploy; uncomment the `disk` block in `render.yaml` (paid plan) for persistence.
 
 ## Environment variables
 

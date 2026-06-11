@@ -3,6 +3,7 @@
 .env
 README.md
 docker-compose.yml
+render.yaml
 
 frontend/node_modules
 frontend/.next
