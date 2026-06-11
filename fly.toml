@@ -1,42 +1,37 @@
-# Fly.io configuration — single app serving the Next.js frontend with the
-# Go API proxied behind it (see root Dockerfile).
+# fly.toml app configuration file generated for rivalio-assessment-fullstack on 2026-06-11T09:25:56Z
 #
-# Before first deploy:
-#   fly launch --no-deploy            # creates the app (pick your own name)
-#   fly postgres create / attach      # provides DATABASE_URL secret
-#   fly secrets set JWT_SECRET=...    # min 32 chars
-#   fly volumes create taskflow_uploads --size 1
-#   fly deploy
+# See https://fly.io/docs/reference/configuration/ for information about how to use this file.
+#
 
-app = "taskflow"
-primary_region = "fra"
+app = 'rivalio-assessment-fullstack'
+primary_region = 'fra'
 
 [build]
-  dockerfile = "Dockerfile"
+  dockerfile = 'Dockerfile'
 
 [env]
-  UPLOAD_DIR = "/data/uploads"
-  JWT_EXPIRY_HOURS = "24"
-  MAX_UPLOAD_BYTES = "10485760"
+  JWT_EXPIRY_HOURS = '24'
+  MAX_UPLOAD_BYTES = '10485760'
+  UPLOAD_DIR = '/data/uploads'
 
-[mounts]
-  source = "taskflow_uploads"
-  destination = "/data"
+[[mounts]]
+  source = 'taskflow_uploads'
+  destination = '/data'
 
 [http_service]
   internal_port = 3000
   force_https = true
-  auto_stop_machines = "stop"
+  auto_stop_machines = 'stop'
   auto_start_machines = true
   min_machines_running = 0
 
   [[http_service.checks]]
-    interval = "30s"
-    timeout = "5s"
-    grace_period = "15s"
-    method = "GET"
-    path = "/healthz"
+    interval = '30s'
+    timeout = '5s'
+    grace_period = '15s'
+    method = 'GET'
+    path = '/healthz'
 
 [[vm]]
-  size = "shared-cpu-1x"
-  memory = "512mb"
+  size = 'shared-cpu-1x'
+  memory = '512mb'
