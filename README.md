@@ -60,6 +60,34 @@ npm install
 npm run dev          # uses http://localhost:8090 as API by default
 ```
 
+## Deploying to Fly.io
+
+The root [`Dockerfile`](Dockerfile) builds both services into a single image: the Go API runs on `127.0.0.1:8090` inside the machine and the Next.js server (port 3000) proxies `/api/*` and `/healthz` to it. Everything is served from one origin, so no CORS or `NEXT_PUBLIC_API_URL` configuration is needed.
+
+```bash
+# 1. Install flyctl and sign in
+brew install flyctl
+fly auth login
+
+# 2. Create the app (uses the existing fly.toml; pick a unique app name)
+fly launch --no-deploy
+
+# 3. Provision Postgres and attach it (sets the DATABASE_URL secret)
+fly postgres create --name taskflow-db
+fly postgres attach taskflow-db
+
+# 4. Set the JWT secret (min 32 chars)
+fly secrets set JWT_SECRET="$(openssl rand -hex 32)"
+
+# 5. Volume for uploaded attachments
+fly volumes create taskflow_uploads --size 1
+
+# 6. Deploy
+fly deploy
+```
+
+The app will be live at `https://<your-app-name>.fly.dev`. Database migrations run automatically when the API boots.
+
 ## Environment variables
 
 All variables are listed with descriptions in [`.env.example`](.env.example). Required for the backend: `DATABASE_URL`, `JWT_SECRET` (min 32 chars). Everything else has sensible defaults.
