@@ -28,25 +28,34 @@ export function TaskDetailModal({ task, onClose }: TaskDetailModalProps) {
   const [activity, setActivity] = useState<ActivityEntry[] | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [uploading, setUploading] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const load = useCallback(async () => {
-    try {
-      const [att, act] = await Promise.all([
-        apiFetch<{ data: Attachment[] }>(`/api/tasks/${task.id}/attachments`),
-        apiFetch<{ data: ActivityEntry[] }>(`/api/tasks/${task.id}/activity`),
-      ]);
-      setAttachments(att.data);
-      setActivity(act.data);
-      setError(null);
-    } catch {
-      setError("Failed to load task details.");
-    }
-  }, [task.id]);
+  const reload = useCallback(() => setRefreshKey((k) => k + 1), []);
 
   useEffect(() => {
+    let cancelled = false;
+    async function load() {
+      try {
+        const [att, act] = await Promise.all([
+          apiFetch<{ data: Attachment[] }>(
+            `/api/tasks/${task.id}/attachments`,
+          ),
+          apiFetch<{ data: ActivityEntry[] }>(`/api/tasks/${task.id}/activity`),
+        ]);
+        if (cancelled) return;
+        setAttachments(att.data);
+        setActivity(act.data);
+        setError(null);
+      } catch {
+        if (!cancelled) setError("Failed to load task details.");
+      }
+    }
     load();
-  }, [load]);
+    return () => {
+      cancelled = true;
+    };
+  }, [task.id, refreshKey]);
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -66,7 +75,7 @@ export function TaskDetailModal({ task, onClose }: TaskDetailModalProps) {
         method: "POST",
         formData,
       });
-      await load();
+      reload();
     } catch (err) {
       setError(err instanceof Error ? err.message : "Upload failed.");
     } finally {
@@ -78,7 +87,7 @@ export function TaskDetailModal({ task, onClose }: TaskDetailModalProps) {
   async function handleDeleteAttachment(id: string) {
     try {
       await apiFetch<void>(`/api/attachments/${id}`, { method: "DELETE" });
-      await load();
+      reload();
     } catch {
       setError("Failed to delete attachment.");
     }
