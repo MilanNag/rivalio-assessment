@@ -1,0 +1,10 @@
+# Environment
+.env
+.env.local
+
+# Backend
+backend/uploads/
+backend/server
+
+# OS
+.DS_Store
