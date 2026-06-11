@@ -13,6 +13,10 @@ primary_region = 'ams'
   JWT_EXPIRY_HOURS = '24'
   MAX_UPLOAD_BYTES = '10485760'
   UPLOAD_DIR = '/data/uploads'
+  # The app is same-origin (Next proxies /api), so CORS is never triggered
+  # in normal use; this just pins the allow-list to the public origin
+  # instead of the localhost defaults.
+  ALLOWED_ORIGINS = 'https://rivalio-assessment.fly.dev'
 
 [[mounts]]
   source = 'taskflow_uploads'
