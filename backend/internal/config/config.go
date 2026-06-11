@@ -23,12 +23,12 @@ type Config struct {
 // for everything except the database URL and JWT secret which are required.
 func Load() (*Config, error) {
 	cfg := &Config{
-		Port:           getEnv("PORT", "8080"),
+		Port:           getEnv("PORT", "8090"),
 		DatabaseURL:    os.Getenv("DATABASE_URL"),
 		JWTSecret:      os.Getenv("JWT_SECRET"),
 		UploadDir:      getEnv("UPLOAD_DIR", "./uploads"),
 		MaxUploadBytes: getEnvInt64("MAX_UPLOAD_BYTES", 10<<20), // 10 MiB
-		AllowedOrigins: strings.Split(getEnv("ALLOWED_ORIGINS", "http://localhost:3000"), ","),
+		AllowedOrigins: strings.Split(getEnv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3100"), ","),
 	}
 
 	expiryHours := getEnvInt64("JWT_EXPIRY_HOURS", 24)

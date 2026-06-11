@@ -18,15 +18,15 @@ services:
   backend:
     build: ./backend
     environment:
-      PORT: "8080"
+      PORT: "8090"
       DATABASE_URL: postgres://${POSTGRES_USER:-taskflow}:${POSTGRES_PASSWORD:-taskflow}@db:5432/${POSTGRES_DB:-taskflow}?sslmode=disable
       JWT_SECRET: ${JWT_SECRET:-change-me-to-a-32+-char-secret-in-prod!}
       JWT_EXPIRY_HOURS: ${JWT_EXPIRY_HOURS:-24}
       UPLOAD_DIR: /app/uploads
       MAX_UPLOAD_BYTES: ${MAX_UPLOAD_BYTES:-10485760}
-      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3000}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-http://localhost:3100,http://localhost:3000}
     ports:
-      - "${BACKEND_PORT:-8080}:8080"
+      - "${BACKEND_PORT:-8090}:8090"
     volumes:
       - uploads:/app/uploads
     depends_on:
@@ -37,9 +37,9 @@ services:
     build:
       context: ./frontend
       args:
-        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8080}
+        NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8090}
     ports:
-      - "${FRONTEND_PORT:-3000}:3000"
+      - "${FRONTEND_PORT:-3100}:3000"
     depends_on:
       - backend
 

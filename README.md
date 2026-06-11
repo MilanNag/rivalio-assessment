@@ -31,8 +31,10 @@ A task management application with a **Go** REST API, a **Next.js** frontend, an
 docker compose up --build
 ```
 
-- Frontend: http://localhost:3000
-- API: http://localhost:8080 (health check at `/healthz`)
+- Frontend: http://localhost:3100
+- API: http://localhost:8090 (health check at `/healthz`)
+
+Host ports are overridable via `BACKEND_PORT`, `FRONTEND_PORT` and `POSTGRES_PORT` (see `.env.example`) if any default clashes with something already running on your machine.
 
 Optionally copy `.env.example` to `.env` first to override defaults (compose ships with working dev defaults).
 
@@ -55,7 +57,7 @@ go run ./cmd/server
 # 3. Frontend (in another terminal)
 cd frontend
 npm install
-npm run dev          # uses http://localhost:8080 as API by default
+npm run dev          # uses http://localhost:8090 as API by default
 ```
 
 ## Environment variables

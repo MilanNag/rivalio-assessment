@@ -17,7 +17,7 @@ func TestLoadDefaults(t *testing.T) {
 	if err != nil {
 		t.Fatalf("load: %v", err)
 	}
-	if cfg.Port != "8080" {
+	if cfg.Port != "8090" {
 		t.Errorf("port = %s", cfg.Port)
 	}
 	if cfg.JWTExpiry != 24*time.Hour {

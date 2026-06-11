@@ -13,5 +13,5 @@ WORKDIR /app
 COPY --from=build /bin/server /app/server
 RUN mkdir -p /app/uploads && chown appuser /app/uploads
 USER appuser
-EXPOSE 8080
+EXPOSE 8090
 ENTRYPOINT ["/app/server"]
